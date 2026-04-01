@@ -13,6 +13,8 @@ import {
 } from '@/components/ui/dialog'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Loader2, Plus, X, User, GraduationCap, BookOpen, Award, Link as LinkIcon } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { uploadImageToSupabase } from '@/lib/storage'
 
 interface Education {
   degree: string
@@ -58,7 +60,9 @@ export function ResearcherFormModal({
   onSubmit,
   initialData,
 }: ResearcherFormModalProps) {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [uploadingImage, setUploadingImage] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -154,8 +158,72 @@ export function ResearcherFormModal({
     setFormData({ ...formData, education: newEducation })
   }
 
+  async function handleImageUpload(file?: File) {
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please select an image file.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setUploadingImage(true)
+    try {
+      const imageUrl = await uploadImageToSupabase({
+        file,
+        bucket: process.env.NEXT_PUBLIC_SUPABASE_RESEARCHERS_BUCKET || 'researchers',
+        folder: 'profile-images',
+      })
+
+      setFormData(prev => ({ ...prev, image: imageUrl }))
+      toast({
+        title: 'Upload complete',
+        description: 'Researcher photo uploaded successfully.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload image.',
+        variant: 'destructive',
+      })
+    } finally {
+      setUploadingImage(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (!formData.image) {
+      toast({
+        title: 'Photo required',
+        description: 'Please upload a researcher photo before saving.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (uploadingImage) {
+      toast({
+        title: 'Upload in progress',
+        description: 'Please wait for the image upload to finish.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -190,7 +258,7 @@ export function ResearcherFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[80vw] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[80vw]! w-[80vw] h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl">{initialData ? 'Edit Researcher Profile' : 'Add New Researcher'}</DialogTitle>
         </DialogHeader>
@@ -285,17 +353,46 @@ export function ResearcherFormModal({
                     />
                   </div>
 
-                  <div className="col-span-2">
-                    <Label htmlFor="image" className="text-base">Photo URL *</Label>
+                  <div className="col-span-2 space-y-3">
+                    <Label htmlFor="image" className="text-base">Photo *</Label>
                     <Input
                       id="image"
-                      type="url"
-                      value={formData.image}
-                      onChange={e => setFormData({ ...formData, image: e.target.value })}
-                      placeholder="https://example.com/photo.jpg"
+                      type="file"
+                      accept="image/*"
+                      onChange={e => {
+                        void handleImageUpload(e.target.files?.[0])
+                        e.currentTarget.value = ''
+                      }}
                       className="mt-2"
-                      required
+                      disabled={loading || uploadingImage}
                     />
+                    <p className="text-xs text-muted-foreground">
+                      Upload JPG, PNG, or WebP up to 5MB. Stored in Supabase Storage.
+                    </p>
+                    {uploadingImage && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading photo...
+                      </div>
+                    )}
+                    {formData.image && (
+                      <div className="space-y-2">
+                        <img
+                          src={formData.image}
+                          alt="Researcher preview"
+                          className="h-24 w-24 rounded-full object-cover border"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
+                          disabled={loading || uploadingImage}
+                        >
+                          Remove Photo
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-span-2">
@@ -559,7 +656,7 @@ export function ResearcherFormModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || uploadingImage}>
               {loading && <Loader2 size={18} className="mr-2 animate-spin" />}
               {loading ? 'Saving...' : 'Save Researcher Profile'}
             </Button>

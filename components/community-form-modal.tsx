@@ -21,6 +21,8 @@ import {
 } from '@/components/ui/select'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Loader2, Plus, X, Info, Settings, Shield, MapPin, Tag, User } from 'lucide-react'
+import { useToast } from '@/hooks/use-toast'
+import { uploadImageToSupabase } from '@/lib/storage'
 
 interface CommunityMember {
   id: string
@@ -56,7 +58,9 @@ export function CommunityFormModal({
   onSubmit,
   initialData,
 }: CommunityFormModalProps) {
+  const { toast } = useToast()
   const [loading, setLoading] = useState(false)
+  const [uploadingLogo, setUploadingLogo] = useState(false)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -100,8 +104,63 @@ export function CommunityFormModal({
     }
   }, [initialData, open])
 
+  async function handleLogoUpload(file?: File) {
+    if (!file) return
+
+    if (!file.type.startsWith('image/')) {
+      toast({
+        title: 'Invalid file',
+        description: 'Please select an image file.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    if (file.size > 5 * 1024 * 1024) {
+      toast({
+        title: 'File too large',
+        description: 'Please upload an image smaller than 5MB.',
+        variant: 'destructive',
+      })
+      return
+    }
+
+    setUploadingLogo(true)
+    try {
+      const logoUrl = await uploadImageToSupabase({
+        file,
+        bucket: process.env.NEXT_PUBLIC_SUPABASE_COMMUNITIES_BUCKET || 'communities',
+        folder: 'community-logos',
+      })
+
+      setFormData(prev => ({ ...prev, logo: logoUrl }))
+      toast({
+        title: 'Upload complete',
+        description: 'Community logo uploaded successfully.',
+      })
+    } catch (error) {
+      toast({
+        title: 'Upload failed',
+        description: error instanceof Error ? error.message : 'Failed to upload image.',
+        variant: 'destructive',
+      })
+    } finally {
+      setUploadingLogo(false)
+    }
+  }
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
+
+    if (uploadingLogo) {
+      toast({
+        title: 'Upload in progress',
+        description: 'Please wait for the logo upload to finish.',
+        variant: 'destructive',
+      })
+      return
+    }
+
     setLoading(true)
 
     try {
@@ -126,7 +185,7 @@ export function CommunityFormModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="!max-w-[80vw] w-[80vw] h-[85vh] overflow-hidden flex flex-col">
+      <DialogContent className="max-w-[80vw]! w-[80vw] h-[85vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl">{initialData ? 'Edit Community' : 'Create New Community'}</DialogTitle>
         </DialogHeader>
@@ -217,17 +276,46 @@ export function CommunityFormModal({
                     </Select>
                   </div>
 
-                  <div className="col-span-2">
-                    <Label htmlFor="logo" className="text-base">Logo / Image URL</Label>
+                  <div className="col-span-2 space-y-3">
+                    <Label htmlFor="logo" className="text-base">Logo / Image</Label>
                     <Input
                       id="logo"
-                      type="url"
-                      value={formData.logo}
-                      onChange={e => setFormData({ ...formData, logo: e.target.value })}
-                      placeholder="https://example.com/logo.jpg"
+                      type="file"
+                      accept="image/*"
+                      onChange={e => {
+                        void handleLogoUpload(e.target.files?.[0])
+                        e.currentTarget.value = ''
+                      }}
                       className="mt-2"
+                      disabled={loading || uploadingLogo}
                     />
-                    <p className="text-xs text-muted-foreground mt-1">Optional: Add a logo or banner image for your community</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Optional: Upload JPG, PNG, or WebP up to 5MB. Stored in Supabase Storage.
+                    </p>
+                    {uploadingLogo && (
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Uploading logo...
+                      </div>
+                    )}
+                    {formData.logo && (
+                      <div className="space-y-2">
+                        <img
+                          src={formData.logo}
+                          alt="Community logo preview"
+                          className="h-24 w-24 rounded-md object-cover border"
+                        />
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setFormData(prev => ({ ...prev, logo: '' }))}
+                          disabled={loading || uploadingLogo}
+                        >
+                          Remove Logo
+                        </Button>
+                      </div>
+                    )}
                   </div>
 
                   <div className="col-span-2">
@@ -381,7 +469,7 @@ export function CommunityFormModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || uploadingLogo}>
               {loading && <Loader2 size={18} className="mr-2 animate-spin" />}
               {loading ? 'Creating Community...' : initialData ? 'Save Changes' : 'Create Community'}
             </Button>

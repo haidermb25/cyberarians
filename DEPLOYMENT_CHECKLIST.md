@@ -56,6 +56,9 @@ Go to Hostinger Control Panel → Environment Variables and add:
 ```env
 NEXT_PUBLIC_SUPABASE_URL=https://dqogtbrqhgqvfpggmwti.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_u7I4b8mMa1D_wtGo-Em2SQ_hcHB4bHV
+# Optional storage bucket names for admin image uploads
+NEXT_PUBLIC_SUPABASE_RESEARCHERS_BUCKET=researchers
+NEXT_PUBLIC_SUPABASE_COMMUNITIES_BUCKET=communities
 ADMIN_PASSWORD=admin123
 NODE_ENV=production
 ```
