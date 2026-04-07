@@ -30,11 +30,11 @@ export default function Home() {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative overflow-hidden min-h-[32rem] shadow-[0_4px_24px_-2px_rgba(0,0,0,0.15)]">
+        {/* Hero: extends under sticky header so slider shows through glass navbar */}
+        <section className="relative overflow-hidden min-h-[min(90vh,40rem)] -mt-16 pt-16 shadow-[0_4px_24px_-2px_rgba(0,0,0,0.15)]">
           <HeroBackground />
           <div className="absolute inset-0 bg-grid-pattern opacity-5 z-[1]" />
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 sm:py-32 relative z-10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-10 sm:pt-14 pb-20 sm:pb-32 relative z-10">
             <div className="text-center space-y-8">
               <div className="flex justify-center gap-2 mb-4">
                 <Badge className="bg-white/15 text-white border-white/30 hover:bg-white/25 backdrop-blur-sm">

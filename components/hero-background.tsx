@@ -1,84 +1,208 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback, useRef, type CSSProperties } from 'react'
 import Image from 'next/image'
+import { ChevronLeft, ChevronRight } from 'lucide-react'
+import { cn } from '@/lib/utils'
 
-// Five slides: add hero-3.png, hero-4.png, hero-5.png to public/hero/ for five distinct images
-const HERO_IMAGES = [
-  '/hero/hero-1.png',
-  '/hero/hero-2.png',
-  '/hero/hero-1.png',
-  '/hero/hero-2.png',
-  '/hero/hero-1.png',
+type HeroSlide = {
+  src: string
+  alt: string
+  label: string
+  /** Tailwind object-position / fit tweaks (e.g. portrait photos) */
+  imageClass?: string
+}
+
+const SLIDES: HeroSlide[] = [
+  {
+    src: '/hero/hero-lab.png',
+    alt: 'Researchers and students collaborating with laptops in a training lab',
+    label: 'Hands-on sessions & training',
+  },
+  {
+    src: '/hero/hero-community.png',
+    alt: 'Cybrarian community at an outdoor tech event with partners banner',
+    label: 'Community & partner events',
+  },
+  {
+    src: '/hero/hero-presentation.png',
+    alt: 'Speaker at a podium delivering a presentation with microphone and laptop',
+    label: 'Talks, keynotes & leadership',
+    imageClass: 'object-cover object-[center_25%] sm:object-[center_20%]',
+  },
 ]
-const ROTATE_INTERVAL_MS = 5000
-const SLIDE_DURATION_MS = 600
+
+const AUTOPLAY_MS = 7000
+const CROSSFADE_MS = 1100
 
 export function HeroBackground() {
   const [activeIndex, setActiveIndex] = useState(0)
+  const [reduceMotion, setReduceMotion] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const timerRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
   useEffect(() => {
-    const id = setInterval(() => {
-      setActiveIndex((i) => (i + 1) % HERO_IMAGES.length)
-    }, ROTATE_INTERVAL_MS)
-    return () => clearInterval(id)
+    const mq = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const apply = () => setReduceMotion(mq.matches)
+    apply()
+    mq.addEventListener('change', apply)
+    return () => mq.removeEventListener('change', apply)
   }, [])
+
+  const goTo = useCallback((i: number) => {
+    setActiveIndex((prev) => {
+      const n = SLIDES.length
+      const next = ((i % n) + n) % n
+      return next === prev ? prev : next
+    })
+  }, [])
+
+  const goNext = useCallback(() => {
+    setActiveIndex((i) => (i + 1) % SLIDES.length)
+  }, [])
+
+  const goPrev = useCallback(() => {
+    setActiveIndex((i) => (i - 1 + SLIDES.length) % SLIDES.length)
+  }, [])
+
+  useEffect(() => {
+    if (reduceMotion || isPaused) {
+      if (timerRef.current) clearInterval(timerRef.current)
+      timerRef.current = null
+      return
+    }
+    timerRef.current = setInterval(() => {
+      setActiveIndex((i) => (i + 1) % SLIDES.length)
+    }, AUTOPLAY_MS)
+    return () => {
+      if (timerRef.current) clearInterval(timerRef.current)
+    }
+  }, [reduceMotion, isPaused])
 
   return (
     <>
-      {/* Horizontal sliding strip: 5 full-width slides, move left/right */}
       <div
-        className="absolute inset-0 overflow-hidden"
+        className="absolute inset-0 overflow-hidden bg-slate-950"
         aria-hidden
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
       >
         <div
-          className="flex h-full will-change-transform"
-          style={{
-            width: `${HERO_IMAGES.length * 100}%`,
-            transform: `translate3d(-${activeIndex * (100 / HERO_IMAGES.length)}%, 0, 0)`,
-            transition: `transform ${SLIDE_DURATION_MS}ms cubic-bezier(0.25, 0.46, 0.45, 0.94)`,
-          }}
-        >
-          {HERO_IMAGES.map((src, i) => (
+          className="absolute inset-0 opacity-40 pointer-events-none hero-hero-mesh"
+          aria-hidden
+        />
+
+        {SLIDES.map((slide, i) => {
+          const isActive = i === activeIndex
+          return (
             <div
-              key={`${src}-${i}`}
-              className="relative h-full flex-shrink-0"
-              style={{ width: `${100 / HERO_IMAGES.length}%` }}
+              key={slide.src}
+              className={cn(
+                'absolute inset-0 transition-opacity ease-in-out',
+                isActive ? 'opacity-100 z-[0]' : 'opacity-0 z-0',
+              )}
+              style={{
+                transitionDuration: `${CROSSFADE_MS}ms`,
+              }}
             >
-              {/* HD: Next/Image for sharp scaling; cover without over-zooming */}
-              <Image
-                src={src}
-                alt=""
-                fill
-                className="object-cover object-center select-none"
-                sizes="100vw"
-                quality={95}
-                priority
-                draggable={false}
+              <div
+                key={`${slide.src}-${activeIndex}-${isActive}`}
+                className={cn(
+                  'absolute inset-0',
+                  isActive && !reduceMotion && 'hero-ken-burns-active',
+                )}
+              >
+                <Image
+                  src={slide.src}
+                  alt=""
+                  fill
+                  className={cn(
+                    'object-cover select-none scale-105',
+                    slide.imageClass ?? 'object-center',
+                  )}
+                  sizes="100vw"
+                  quality={90}
+                  priority={i === 0}
+                  draggable={false}
+                />
+              </div>
+              <div
+                className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_85%_70%_at_50%_45%,transparent_0%,rgba(0,0,0,0.45)_100%)]"
+                aria-hidden
               />
             </div>
-          ))}
-        </div>
+          )
+        })}
       </div>
 
-      {/* Dark overlay: keeps image visible and distinct from page background, ensures text contrast */}
       <div
-        className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/40 to-black/55 pointer-events-none"
+        className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/60 pointer-events-none z-[1]"
+        aria-hidden
+      />
+      <div
+        className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/15 pointer-events-none z-[1] mix-blend-soft-light opacity-90"
         aria-hidden
       />
 
-      {/* Dot indicators */}
-      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-[1] flex gap-2 pointer-events-none" aria-hidden>
-        {HERO_IMAGES.map((_, i) => (
-          <span
-            key={i}
-            className="h-1.5 rounded-full transition-all duration-300"
-            style={{
-              width: i === activeIndex ? 24 : 6,
-              backgroundColor: i === activeIndex ? 'rgba(255,255,255,0.95)' : 'rgba(255,255,255,0.4)',
-            }}
+      <div className="absolute bottom-20 left-1/2 -translate-x-1/2 z-[2] pointer-events-none hidden sm:block">
+        <div
+          key={activeIndex}
+          className="rounded-full border border-white/20 bg-black/25 px-4 py-1.5 text-xs font-medium text-white/90 backdrop-blur-md shadow-lg hero-caption-in"
+        >
+          {SLIDES[activeIndex].label}
+        </div>
+      </div>
+
+      {!reduceMotion && (
+        <div className="absolute bottom-0 left-0 right-0 z-[2] h-1 bg-white/10 pointer-events-none">
+          <div
+            key={activeIndex}
+            className="h-full bg-gradient-to-r from-emerald-400/90 via-white/95 to-sky-400/90 origin-left hero-progress-bar shadow-[0_0_20px_rgba(255,255,255,0.35)]"
+            style={{ '--hero-interval': `${AUTOPLAY_MS}ms` } as CSSProperties}
+          />
+        </div>
+      )}
+
+      <div
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 z-[2] flex items-center gap-2"
+        role="tablist"
+        aria-label="Hero image slides"
+      >
+        {SLIDES.map((slide, i) => (
+          <button
+            key={slide.src}
+            type="button"
+            role="tab"
+            aria-selected={i === activeIndex}
+            aria-label={`Show slide ${i + 1}: ${slide.alt}`}
+            onClick={() => goTo(i)}
+            className={cn(
+              'h-2 rounded-full transition-all duration-500 ease-out focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/80 focus-visible:ring-offset-2 focus-visible:ring-offset-black/50',
+              i === activeIndex
+                ? 'w-9 bg-white shadow-[0_0_12px_rgba(255,255,255,0.5)]'
+                : 'w-2 bg-white/40 hover:bg-white/65',
+            )}
           />
         ))}
+      </div>
+
+      <div className="absolute inset-y-0 left-0 right-0 z-[2] pointer-events-none max-w-7xl mx-auto">
+        <button
+          type="button"
+          onClick={goPrev}
+          aria-label="Previous slide"
+          className="pointer-events-auto absolute left-2 sm:left-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        >
+          <ChevronLeft className="h-6 w-6" />
+        </button>
+        <button
+          type="button"
+          onClick={goNext}
+          aria-label="Next slide"
+          className="pointer-events-auto absolute right-2 sm:right-4 top-1/2 -translate-y-1/2 flex h-11 w-11 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur-md transition hover:bg-white/20 hover:scale-105 active:scale-95 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/70"
+        >
+          <ChevronRight className="h-6 w-6" />
+        </button>
       </div>
     </>
   )
