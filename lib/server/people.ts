@@ -1,4 +1,5 @@
 import 'server-only'
+import { randomUUID } from 'crypto'
 import { supabase } from '@/lib/supabase'
 
 export interface Person {
@@ -51,9 +52,17 @@ export async function getPersonById(id: string): Promise<Person | null> {
 
 export async function addPerson(person: Omit<Person, 'id'>): Promise<Person> {
   try {
+    const row: Person = {
+      id: randomUUID(),
+      name: person.name,
+      email: person.email,
+      phone: person.phone,
+      organization: person.organization,
+      role: person.role,
+    }
     const { data, error } = await supabase
       .from('people')
-      .insert([person])
+      .insert([row])
       .select()
       .single()
     

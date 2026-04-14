@@ -14,7 +14,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Loader2, Plus, X, User, GraduationCap, BookOpen, Award, Link as LinkIcon } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { uploadImageToSupabase } from '@/lib/storage'
+import { uploadAdminImage } from '@/lib/storage'
 
 interface Education {
   degree: string
@@ -62,7 +62,10 @@ export function ResearcherFormModal({
 }: ResearcherFormModalProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const [uploadingImage, setUploadingImage] = useState(false)
+  /** Chosen file; uploaded to Cloudinary only when the user saves. */
+  const [pendingImageFile, setPendingImageFile] = useState<File | null>(null)
+  /** Local object URL for pending file preview (revoked on replace/remove/unmount). */
+  const [localImagePreview, setLocalImagePreview] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     title: '',
@@ -86,6 +89,12 @@ export function ResearcherFormModal({
   })
 
   useEffect(() => {
+    setLocalImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
+    setPendingImageFile(null)
+
     if (initialData) {
       setFormData({
         name: initialData.name,
@@ -158,7 +167,7 @@ export function ResearcherFormModal({
     setFormData({ ...formData, education: newEducation })
   }
 
-  async function handleImageUpload(file?: File) {
+  function handlePhotoSelected(file?: File) {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
@@ -179,46 +188,29 @@ export function ResearcherFormModal({
       return
     }
 
-    setUploadingImage(true)
-    try {
-      const imageUrl = await uploadImageToSupabase({
-        file,
-        bucket: process.env.NEXT_PUBLIC_SUPABASE_RESEARCHERS_BUCKET || 'researchers',
-        folder: 'profile-images',
-      })
+    setLocalImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return URL.createObjectURL(file)
+    })
+    setPendingImageFile(file)
+  }
 
-      setFormData(prev => ({ ...prev, image: imageUrl }))
-      toast({
-        title: 'Upload complete',
-        description: 'Researcher photo uploaded successfully.',
-      })
-    } catch (error) {
-      toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload image.',
-        variant: 'destructive',
-      })
-    } finally {
-      setUploadingImage(false)
-    }
+  function clearPhoto() {
+    setLocalImagePreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
+    setPendingImageFile(null)
+    setFormData(prev => ({ ...prev, image: '' }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (!formData.image) {
+    if (!formData.image && !pendingImageFile) {
       toast({
         title: 'Photo required',
-        description: 'Please upload a researcher photo before saving.',
-        variant: 'destructive',
-      })
-      return
-    }
-
-    if (uploadingImage) {
-      toast({
-        title: 'Upload in progress',
-        description: 'Please wait for the image upload to finish.',
+        description: 'Please choose a researcher photo before saving.',
         variant: 'destructive',
       })
       return
@@ -227,6 +219,29 @@ export function ResearcherFormModal({
     setLoading(true)
 
     try {
+      let imageUrl = formData.image
+      if (pendingImageFile) {
+        try {
+          imageUrl = await uploadAdminImage(pendingImageFile, 'researcher')
+        } catch (error) {
+          toast({
+            title: 'Upload failed',
+            description: error instanceof Error ? error.message : 'Failed to upload image.',
+            variant: 'destructive',
+          })
+          return
+        }
+      }
+
+      if (!imageUrl) {
+        toast({
+          title: 'Photo required',
+          description: 'Could not resolve image URL.',
+          variant: 'destructive',
+        })
+        return
+      }
+
       const submissionData: Omit<Researcher, 'id'> = {
         name: formData.name,
         title: formData.title,
@@ -236,7 +251,7 @@ export function ResearcherFormModal({
         expertise: formData.expertise.split(',').map(e => e.trim()).filter(Boolean),
         rating: parseFloat(String(formData.rating)),
         bio: formData.bio,
-        image: formData.image,
+        image: imageUrl,
         publications: formData.publications.filter(p => p.trim() !== ''),
         projects: formData.projects.filter(p => p.trim() !== ''),
         awards: formData.awards.filter(a => a.trim() !== ''),
@@ -248,8 +263,15 @@ export function ResearcherFormModal({
           website: formData.links.website || undefined,
         },
       }
-      
+
       await onSubmit(submissionData)
+
+      setLocalImagePreview(prev => {
+        if (prev) URL.revokeObjectURL(prev)
+        return null
+      })
+      setPendingImageFile(null)
+      setFormData(prev => ({ ...prev, image: imageUrl }))
       onOpenChange(false)
     } finally {
       setLoading(false)
@@ -360,25 +382,19 @@ export function ResearcherFormModal({
                       type="file"
                       accept="image/*"
                       onChange={e => {
-                        void handleImageUpload(e.target.files?.[0])
+                        handlePhotoSelected(e.target.files?.[0])
                         e.currentTarget.value = ''
                       }}
                       className="mt-2"
-                      disabled={loading || uploadingImage}
+                      disabled={loading}
                     />
                     <p className="text-xs text-muted-foreground">
-                      Upload JPG, PNG, or WebP up to 5MB. Stored in Supabase Storage.
+                      JPG, PNG, or WebP up to 5MB. The photo is sent to Cloudinary when you save the profile.
                     </p>
-                    {uploadingImage && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Uploading photo...
-                      </div>
-                    )}
-                    {formData.image && (
+                    {(localImagePreview || formData.image) && (
                       <div className="space-y-2">
                         <img
-                          src={formData.image}
+                          src={localImagePreview || formData.image}
                           alt="Researcher preview"
                           className="h-24 w-24 rounded-full object-cover border"
                         />
@@ -386,8 +402,8 @@ export function ResearcherFormModal({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => setFormData(prev => ({ ...prev, image: '' }))}
-                          disabled={loading || uploadingImage}
+                          onClick={clearPhoto}
+                          disabled={loading}
                         >
                           Remove Photo
                         </Button>
@@ -656,7 +672,7 @@ export function ResearcherFormModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || uploadingImage}>
+            <Button type="submit" disabled={loading}>
               {loading && <Loader2 size={18} className="mr-2 animate-spin" />}
               {loading ? 'Saving...' : 'Save Researcher Profile'}
             </Button>

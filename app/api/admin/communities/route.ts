@@ -1,88 +1,96 @@
 import { NextResponse, NextRequest } from 'next/server'
-import fs from 'fs/promises'
-import path from 'path'
+import {
+  addCommunity,
+  updateCommunity,
+  deleteCommunity,
+  getCommunityById,
+  type Community,
+} from '@/lib/server/communities'
 
-interface CommunityMember {
-  id: string
-  name: string
-  role: string
-}
-
-interface Community {
-  id: string
-  name: string
-  description: string
-  members: CommunityMember[]
-}
-
-const COMMUNITIES_FILE = path.join(process.cwd(), 'data', 'communities.json')
-
-async function readCommunities(): Promise<Community[]> {
-  try {
-    const data = await fs.readFile(COMMUNITIES_FILE, 'utf-8')
-    return JSON.parse(data)
-  } catch (error) {
-    console.error('Error reading communities:', error)
-    return []
+function supabaseErrorMessage(error: unknown): string {
+  if (error instanceof Error) return error.message
+  if (error && typeof error === 'object' && 'message' in error) {
+    return String((error as { message: unknown }).message)
   }
-}
-
-async function writeCommunities(data: Community[]): Promise<void> {
-  try {
-    await fs.writeFile(COMMUNITIES_FILE, JSON.stringify(data, null, 2))
-  } catch (error) {
-    console.error('Error writing communities:', error)
-    throw error
-  }
+  return 'Unknown error'
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const communities = await readCommunities()
-    const newCommunity: Community = {
-      ...body,
-      id: String(Math.max(...communities.map(c => parseInt(c.id)), 0) + 1),
-    }
-    await writeCommunities([...communities, newCommunity])
-    return NextResponse.json(newCommunity, { status: 201 })
+    const { id: _omit, ...payload } = body as Record<string, unknown>
+    const created = await addCommunity(payload as Omit<Community, 'id'>)
+    return NextResponse.json(created, { status: 201 })
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to create community' }, { status: 500 })
+    console.error('POST /api/admin/communities', error)
+    const detail = supabaseErrorMessage(error)
+    return NextResponse.json(
+      {
+        error: 'Failed to create community',
+        ...(process.env.NODE_ENV === 'development' && { detail }),
+      },
+      { status: 500 }
+    )
   }
 }
 
 export async function PUT(request: NextRequest) {
   try {
-    const { id, updates } = await request.json()
-    const communities = await readCommunities()
-    const index = communities.findIndex(c => c.id === id)
+    const { id, updates } = (await request.json()) as {
+      id: string
+      updates: Partial<Community>
+    }
 
-    if (index === -1) {
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    }
+
+    const existing = await getCommunityById(id)
+    if (!existing) {
       return NextResponse.json({ error: 'Community not found' }, { status: 404 })
     }
 
-    const updated = { ...communities[index], ...updates }
-    communities[index] = updated
-    await writeCommunities(communities)
+    const updated = await updateCommunity(id, updates)
+
+    if (!updated) {
+      return NextResponse.json({ error: 'Failed to update community' }, { status: 500 })
+    }
+
     return NextResponse.json(updated)
   } catch (error) {
-    return NextResponse.json({ error: 'Failed to update community' }, { status: 500 })
+    console.error('PUT /api/admin/communities', error)
+    const detail = supabaseErrorMessage(error)
+    return NextResponse.json(
+      {
+        error: 'Failed to update community',
+        ...(process.env.NODE_ENV === 'development' && { detail }),
+      },
+      { status: 500 }
+    )
   }
 }
 
 export async function DELETE(request: NextRequest) {
   try {
     const { id } = await request.json()
-    const communities = await readCommunities()
-    const filtered = communities.filter(c => c.id !== id)
 
-    if (filtered.length === communities.length) {
+    if (!id) {
+      return NextResponse.json({ error: 'Missing id' }, { status: 400 })
+    }
+
+    const existing = await getCommunityById(id)
+    if (!existing) {
       return NextResponse.json({ error: 'Community not found' }, { status: 404 })
     }
 
-    await writeCommunities(filtered)
+    const ok = await deleteCommunity(id)
+    if (!ok) {
+      return NextResponse.json({ error: 'Failed to delete community' }, { status: 500 })
+    }
+
     return NextResponse.json({ success: true })
   } catch (error) {
+    console.error('DELETE /api/admin/communities', error)
     return NextResponse.json({ error: 'Failed to delete community' }, { status: 500 })
   }
 }

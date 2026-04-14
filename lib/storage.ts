@@ -1,34 +1,31 @@
-import { supabase } from '@/lib/supabase'
+export type AdminImageUploadKind = 'researcher' | 'community'
 
-interface UploadImageOptions {
-  file: File
-  bucket: string
-  folder?: string
-}
+export async function uploadAdminImage(
+  file: File,
+  kind: AdminImageUploadKind
+): Promise<string> {
+  const formData = new FormData()
+  formData.append('file', file)
+  formData.append('kind', kind)
 
-export async function uploadImageToSupabase({
-  file,
-  bucket,
-  folder = 'uploads',
-}: UploadImageOptions): Promise<string> {
-  const extension = file.name.split('.').pop() || 'jpg'
-  const filePath = `${folder}/${Date.now()}-${crypto.randomUUID()}.${extension}`
-
-  const { error } = await supabase.storage.from(bucket).upload(filePath, file, {
-    cacheControl: '3600',
-    upsert: false,
-    contentType: file.type || undefined,
+  const response = await fetch('/api/admin/upload-image', {
+    method: 'POST',
+    body: formData,
+    credentials: 'include',
   })
 
-  if (error) {
-    throw new Error(error.message)
+  const data = (await response.json().catch(() => ({}))) as {
+    url?: string
+    error?: string
   }
 
-  const { data } = supabase.storage.from(bucket).getPublicUrl(filePath)
-
-  if (!data?.publicUrl) {
-    throw new Error('Failed to generate public URL for uploaded image')
+  if (!response.ok) {
+    throw new Error(data.error || 'Failed to upload image')
   }
 
-  return data.publicUrl
+  if (!data.url) {
+    throw new Error('No image URL returned')
+  }
+
+  return data.url
 }

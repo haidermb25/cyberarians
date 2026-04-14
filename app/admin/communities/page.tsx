@@ -1,5 +1,6 @@
 'use client'
 
+import Link from 'next/link'
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
@@ -84,6 +85,10 @@ export default function AdminCommunitiesPage() {
   useEffect(() => {
     fetchData()
   }, [])
+
+  useEffect(() => {
+    setNewMemberId('')
+  }, [selectedCommunityId])
 
   async function fetchData() {
     try {
@@ -189,9 +194,10 @@ export default function AdminCommunitiesPage() {
 
     setAddingMember(true)
     try {
-      // Find from researchers or people
-      const researcher = researchers.find(r => r.id === newMemberId)
-      const person = people.find(p => p.id === newMemberId)
+      const idKey = newMemberId
+      // Select values are strings; Supabase may return numeric ids — compare as strings
+      const researcher = researchers.find(r => String(r.id) === idKey)
+      const person = people.find(p => String(p.id) === idKey)
       
       if (!researcher && !person) {
         toast({
@@ -208,11 +214,11 @@ export default function AdminCommunitiesPage() {
         role: newMemberRole,
       }
 
-      const selectedCommunity = communities.find(c => c.id === selectedCommunityId)
+      const selectedCommunity = communities.find(c => String(c.id) === String(selectedCommunityId))
       if (!selectedCommunity) throw new Error('Community not found')
 
       // Check if already a member
-      if (selectedCommunity.members.some(m => m.id === newMemberId)) {
+      if (selectedCommunity.members.some(m => String(m.id) === idKey)) {
         toast({
           title: 'Error',
           description: 'This person is already a member',
@@ -253,12 +259,12 @@ export default function AdminCommunitiesPage() {
     if (!selectedCommunityId) return
 
     try {
-      const selectedCommunity = communities.find(c => c.id === selectedCommunityId)
+      const selectedCommunity = communities.find(c => String(c.id) === String(selectedCommunityId))
       if (!selectedCommunity) throw new Error('Community not found')
 
       const updated = {
         ...selectedCommunity,
-        members: selectedCommunity.members.filter(m => m.id !== memberId),
+        members: selectedCommunity.members.filter(m => String(m.id) !== String(memberId)),
       }
 
       const response = await fetch('/api/admin/communities', {
@@ -282,8 +288,12 @@ export default function AdminCommunitiesPage() {
     }
   }
 
-  const editingCommunity = editingId ? communities.find(c => c.id === editingId) : undefined
-  const selectedCommunity = selectedCommunityId ? communities.find(c => c.id === selectedCommunityId) : null
+  const editingCommunity = editingId
+    ? communities.find(c => String(c.id) === String(editingId))
+    : undefined
+  const selectedCommunity = selectedCommunityId
+    ? communities.find(c => String(c.id) === String(selectedCommunityId))
+    : null
 
   return (
     <div className="p-8 space-y-6">
@@ -327,10 +337,12 @@ export default function AdminCommunitiesPage() {
             <div className="divide-y max-h-96 overflow-y-auto">
               {communities.map(community => (
                 <button
-                  key={community.id}
-                  onClick={() => setSelectedCommunityId(community.id)}
+                  key={String(community.id)}
+                  onClick={() => setSelectedCommunityId(String(community.id))}
                   className={`w-full text-left p-3 hover:bg-muted transition-colors ${
-                    selectedCommunityId === community.id ? 'bg-primary/10 border-l-2 border-primary' : ''
+                    String(selectedCommunityId) === String(community.id)
+                      ? 'bg-primary/10 border-l-2 border-primary'
+                      : ''
                   }`}
                 >
                   <p className="font-medium text-sm">{community.name}</p>
@@ -386,18 +398,24 @@ export default function AdminCommunitiesPage() {
                         <option value="">Choose a person...</option>
                         <optgroup label="Researchers">
                           {researchers
-                            .filter(r => !selectedCommunity.members.find(m => m.id === r.id))
+                            .filter(
+                              r =>
+                                !selectedCommunity.members.some(m => String(m.id) === String(r.id))
+                            )
                             .map(r => (
-                              <option key={r.id} value={r.id}>
+                              <option key={String(r.id)} value={String(r.id)}>
                                 {r.name} - {r.title}
                               </option>
                             ))}
                         </optgroup>
                         <optgroup label="People">
                           {people
-                            .filter(p => !selectedCommunity.members.find(m => m.id === p.id))
+                            .filter(
+                              p =>
+                                !selectedCommunity.members.some(m => String(m.id) === String(p.id))
+                            )
                             .map(p => (
-                              <option key={p.id} value={p.id}>
+                              <option key={String(p.id)} value={String(p.id)}>
                                 {p.name} {p.organization ? `- ${p.organization}` : ''}
                               </option>
                             ))}

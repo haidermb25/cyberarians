@@ -1,0 +1,21 @@
+[
+  {
+    "name": "sdfdsf",
+    "title": "dsfdsf",
+    "affiliation": "sdfdsf",
+    "email": "neuro5@gmail.com",
+    "phone": "5646546546",
+    "expertise": [
+      "Machine Learning"
+    ],
+    "rating": 4,
+    "bio": "sadasd",
+    "image": "https://res.cloudinary.com/dlsdigmwo/image/upload/v1776013823/cybrarian/profile-images/uzkesqwt79rnmbhjvh9b.jpg",
+    "publications": [],
+    "projects": [],
+    "awards": [],
+    "education": [],
+    "links": {},
+    "id": "1"
+  }
+]

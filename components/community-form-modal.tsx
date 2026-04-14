@@ -22,7 +22,7 @@ import {
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Loader2, Plus, X, Info, Settings, Shield, MapPin, Tag, User } from 'lucide-react'
 import { useToast } from '@/hooks/use-toast'
-import { uploadImageToSupabase } from '@/lib/storage'
+import { uploadAdminImage } from '@/lib/storage'
 
 interface CommunityMember {
   id: string
@@ -35,7 +35,7 @@ interface Community {
   name: string
   description: string
   category: string
-  logo?: string
+  logo?: string | null
   privacy: 'public' | 'private'
   rules?: string
   location?: string
@@ -60,7 +60,8 @@ export function CommunityFormModal({
 }: CommunityFormModalProps) {
   const { toast } = useToast()
   const [loading, setLoading] = useState(false)
-  const [uploadingLogo, setUploadingLogo] = useState(false)
+  const [pendingLogoFile, setPendingLogoFile] = useState<File | null>(null)
+  const [localLogoPreview, setLocalLogoPreview] = useState<string | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     description: '',
@@ -75,6 +76,12 @@ export function CommunityFormModal({
   })
 
   useEffect(() => {
+    setLocalLogoPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
+    setPendingLogoFile(null)
+
     if (initialData) {
       setFormData({
         name: initialData.name,
@@ -104,7 +111,7 @@ export function CommunityFormModal({
     }
   }, [initialData, open])
 
-  async function handleLogoUpload(file?: File) {
+  function handleLogoSelected(file?: File) {
     if (!file) return
 
     if (!file.type.startsWith('image/')) {
@@ -125,50 +132,53 @@ export function CommunityFormModal({
       return
     }
 
-    setUploadingLogo(true)
-    try {
-      const logoUrl = await uploadImageToSupabase({
-        file,
-        bucket: process.env.NEXT_PUBLIC_SUPABASE_COMMUNITIES_BUCKET || 'communities',
-        folder: 'community-logos',
-      })
+    setLocalLogoPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return URL.createObjectURL(file)
+    })
+    setPendingLogoFile(file)
+  }
 
-      setFormData(prev => ({ ...prev, logo: logoUrl }))
-      toast({
-        title: 'Upload complete',
-        description: 'Community logo uploaded successfully.',
-      })
-    } catch (error) {
-      toast({
-        title: 'Upload failed',
-        description: error instanceof Error ? error.message : 'Failed to upload image.',
-        variant: 'destructive',
-      })
-    } finally {
-      setUploadingLogo(false)
-    }
+  function clearLogo() {
+    setLocalLogoPreview(prev => {
+      if (prev) URL.revokeObjectURL(prev)
+      return null
+    })
+    setPendingLogoFile(null)
+    setFormData(prev => ({ ...prev, logo: '' }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
 
-    if (uploadingLogo) {
-      toast({
-        title: 'Upload in progress',
-        description: 'Please wait for the logo upload to finish.',
-        variant: 'destructive',
-      })
-      return
-    }
-
     setLoading(true)
 
     try {
+      let logo: string | null | undefined
+      if (pendingLogoFile) {
+        try {
+          logo = await uploadAdminImage(pendingLogoFile, 'community')
+        } catch (error) {
+          toast({
+            title: 'Upload failed',
+            description: error instanceof Error ? error.message : 'Failed to upload image.',
+            variant: 'destructive',
+          })
+          return
+        }
+      } else if (formData.logo.trim() !== '') {
+        logo = formData.logo
+      } else if (initialData) {
+        logo = null
+      } else {
+        logo = undefined
+      }
+
       await onSubmit({
         name: formData.name,
         description: formData.description,
         category: formData.category,
-        logo: formData.logo || undefined,
+        logo,
         privacy: formData.privacy,
         rules: formData.rules || undefined,
         location: formData.location || undefined,
@@ -177,6 +187,13 @@ export function CommunityFormModal({
         adminEmail: formData.adminEmail,
         members: initialData?.members || [],
       })
+
+      setLocalLogoPreview(prev => {
+        if (prev) URL.revokeObjectURL(prev)
+        return null
+      })
+      setPendingLogoFile(null)
+      setFormData(prev => ({ ...prev, logo: typeof logo === 'string' ? logo : '' }))
       onOpenChange(false)
     } finally {
       setLoading(false)
@@ -283,25 +300,19 @@ export function CommunityFormModal({
                       type="file"
                       accept="image/*"
                       onChange={e => {
-                        void handleLogoUpload(e.target.files?.[0])
+                        handleLogoSelected(e.target.files?.[0])
                         e.currentTarget.value = ''
                       }}
                       className="mt-2"
-                      disabled={loading || uploadingLogo}
+                      disabled={loading}
                     />
                     <p className="text-xs text-muted-foreground mt-1">
-                      Optional: Upload JPG, PNG, or WebP up to 5MB. Stored in Supabase Storage.
+                      Optional: JPG, PNG, or WebP up to 5MB. Logo is uploaded to Cloudinary when you save.
                     </p>
-                    {uploadingLogo && (
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                        Uploading logo...
-                      </div>
-                    )}
-                    {formData.logo && (
+                    {(localLogoPreview || formData.logo) && (
                       <div className="space-y-2">
                         <img
-                          src={formData.logo}
+                          src={localLogoPreview || formData.logo}
                           alt="Community logo preview"
                           className="h-24 w-24 rounded-md object-cover border"
                         />
@@ -309,8 +320,8 @@ export function CommunityFormModal({
                           type="button"
                           variant="outline"
                           size="sm"
-                          onClick={() => setFormData(prev => ({ ...prev, logo: '' }))}
-                          disabled={loading || uploadingLogo}
+                          onClick={clearLogo}
+                          disabled={loading}
                         >
                           Remove Logo
                         </Button>
@@ -469,9 +480,9 @@ export function CommunityFormModal({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || uploadingLogo}>
+            <Button type="submit" disabled={loading}>
               {loading && <Loader2 size={18} className="mr-2 animate-spin" />}
-              {loading ? 'Creating Community...' : initialData ? 'Save Changes' : 'Create Community'}
+              {loading ? 'Saving...' : initialData ? 'Save Changes' : 'Create Community'}
             </Button>
           </div>
         </form>
