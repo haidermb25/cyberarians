@@ -2,7 +2,18 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { BookOpen, Users, Network, UserCircle, Shield, LogOut } from 'lucide-react'
+import {
+  BookOpen,
+  Users,
+  Network,
+  UserCircle,
+  Shield,
+  LogOut,
+  Package,
+  Cpu,
+  CalendarDays,
+  Briefcase,
+} from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
@@ -12,6 +23,10 @@ const navItems = [
   { href: '/admin/researchers', label: 'Researchers', icon: Users },
   { href: '/admin/people', label: 'People', icon: UserCircle },
   { href: '/admin/communities', label: 'Communities', icon: Network },
+  { href: '/admin/products', label: 'Products', icon: Package },
+  { href: '/admin/engineers', label: 'Engineers', icon: Cpu },
+  { href: '/admin/sessions', label: 'Sessions', icon: CalendarDays },
+  { href: '/admin/services', label: 'Services', icon: Briefcase },
   { href: '/admin/roles', label: 'Roles', icon: Shield },
 ]
 

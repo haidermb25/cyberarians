@@ -4,115 +4,7 @@ import { Card } from '@/components/ui/card'
 import Image from 'next/image'
 import Link from 'next/link'
 import { Linkedin, Github, Mail, Globe, MapPin, Briefcase, Sparkles, type LucideIcon } from 'lucide-react'
-
-type Engineer = {
-  name: string
-  role: string
-  image: string
-  location: string
-  experience: string
-  focus: string
-  summary: string
-  skills: string[]
-  linkedin?: string
-  github?: string
-  email?: string
-  website?: string
-}
-
-const engineers: Engineer[] = [
-  {
-    name: 'Ali Haider',
-    role: 'Lead Engineer and Product Developer',
-    image: '/engineers/ali-haider.png',
-    location: 'Pakistan',
-    experience: '6+ years',
-    focus: 'Product Architecture',
-    summary: 'Leads end-to-end product engineering with a strong focus on scalable systems and delivery excellence.',
-    skills: ['Next.js', 'System Design', 'Cloud', 'DevOps'],
-    linkedin: 'https://linkedin.com/in/ali-haider',
-    github: 'https://github.com/ali-haider',
-    email: 'ali.haider@cybrarian.com',
-  },
-  {
-    name: 'Waris Khan',
-    role: 'Software Engineer',
-    image: '/engineers/waris-khan.png',
-    location: 'Pakistan',
-    experience: '4+ years',
-    focus: 'Full-Stack Development',
-    summary: 'Builds robust web applications and backend services with clean architecture and maintainable code.',
-    skills: ['React', 'Node.js', 'TypeScript', 'APIs'],
-    linkedin: 'https://linkedin.com/in/waris-khan',
-    github: 'https://github.com/waris-khan',
-    email: 'waris.khan@cybrarian.com',
-  },
-  {
-    name: 'Amir Hamza',
-    role: 'AI Engineer',
-    image: '/engineers/amir-hamza.png',
-    location: 'Pakistan',
-    experience: '4+ years',
-    focus: 'Applied AI Systems',
-    summary: 'Designs AI-driven solutions, model pipelines, and intelligent workflows for practical business impact.',
-    skills: ['LLMs', 'Python', 'MLOps', 'Prompt Engineering'],
-    linkedin: 'https://linkedin.com/in/amir-hamza',
-    github: 'https://github.com/amir-hamza',
-    email: 'amir.hamza@cybrarian.com',
-  },
-  {
-    name: 'Abdullah',
-    role: 'Software Engineer',
-    image: '/engineers/abdullah.png',
-    location: 'Pakistan',
-    experience: '3+ years',
-    focus: 'Frontend Engineering',
-    summary: 'Creates performant, polished interfaces with strong attention to UX consistency and component quality.',
-    skills: ['UI/UX', 'React', 'Tailwind', 'Testing'],
-    linkedin: 'https://linkedin.com/in/abdullah',
-    github: 'https://github.com/abdullah',
-    email: 'abdullah@cybrarian.com',
-  },
-  {
-    name: 'Faiez Tariq',
-    role: 'Software Engineer',
-    image: '/engineers/faiez-tariq.png',
-    location: 'Pakistan',
-    experience: '3+ years',
-    focus: 'Backend & Integrations',
-    summary: 'Develops reliable backend modules and integrations with a focus on performance and data integrity.',
-    skills: ['REST APIs', 'Databases', 'Security', 'Automation'],
-    linkedin: 'https://linkedin.com/in/faiez-tariq',
-    github: 'https://github.com/faiez-tariq',
-    email: 'faiez.tariq@cybrarian.com',
-  },
-  {
-    name: 'Bushra Abad',
-    role: 'Software Engineer',
-    image: '/engineers/bushra-abad.png',
-    location: 'Pakistan',
-    experience: '3+ years',
-    focus: 'Application Development',
-    summary: 'Builds scalable application features with modern engineering practices and collaborative workflows.',
-    skills: ['TypeScript', 'Frontend', 'Backend', 'Documentation'],
-    linkedin: 'https://linkedin.com/in/bushra-abad',
-    github: 'https://github.com/bushra-abad',
-    email: 'bushra.abad@cybrarian.com',
-  },
-  {
-    name: 'Muhammad Bilal',
-    role: 'Software Engineer',
-    image: '/engineers/muhammad-bilal.png',
-    location: 'Pakistan',
-    experience: '3+ years',
-    focus: 'Web Engineering',
-    summary: 'Implements clean, efficient web solutions with a strong focus on reliability and maintainability.',
-    skills: ['JavaScript', 'Web Apps', 'Optimization', 'Git'],
-    linkedin: 'https://linkedin.com/in/muhammad-bilal',
-    github: 'https://github.com/muhammad-bilal',
-    email: 'muhammad.bilal@cybrarian.com',
-  },
-]
+import { getAllEngineers } from '@/lib/server/engineers'
 
 function SocialLink({ href, icon: Icon, label }: { href: string; icon: LucideIcon; label: string }) {
   return (
@@ -128,7 +20,9 @@ function SocialLink({ href, icon: Icon, label }: { href: string; icon: LucideIco
   )
 }
 
-export default function EngineersPage() {
+export default async function EngineersPage() {
+  const engineers = await getAllEngineers()
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Header />
@@ -147,13 +41,13 @@ export default function EngineersPage() {
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {engineers.map((engineer) => (
                 <Card
-                  key={engineer.name}
+                  key={engineer.id}
                   className="p-5 border-2 border-border/80 hover:border-primary/40 hover:shadow-xl transition-all duration-300 flex flex-col bg-gradient-to-br from-card to-primary/5"
                 >
                   <div className="flex gap-4">
                     <div className="relative h-20 w-20 flex-shrink-0 overflow-hidden rounded-full bg-muted ring-2 ring-primary/10">
                       <Image
-                        src={engineer.image}
+                        src={engineer.image || '/icon.svg'}
                         alt={engineer.name}
                         fill
                         className="object-cover"

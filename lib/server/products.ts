@@ -49,16 +49,27 @@ function mapRow(row: Record<string, unknown>): Product {
   }
 }
 
-export async function getAllProducts(): Promise<Product[]> {
+function productToInsert(p: Omit<Product, 'id'>): Record<string, unknown> {
+  return {
+    name: p.name,
+    description: p.description,
+    features: p.features ?? [],
+    icon: p.icon,
+    featured: p.featured,
+  }
+}
+
+export async function getAllProducts(options?: { fillDemoWhenEmpty?: boolean }): Promise<Product[]> {
+  const fillDemo = options?.fillDemoWhenEmpty !== false
   try {
     const { data, error } = await supabase.from('products').select('*')
 
     if (error) {
       console.error('Error fetching products:', error)
-      return DUMMY_PRODUCTS
+      return fillDemo ? DUMMY_PRODUCTS : []
     }
 
-    if (!data?.length) return DUMMY_PRODUCTS
+    if (!data?.length) return fillDemo ? DUMMY_PRODUCTS : []
 
     const withSort = data.map((row) => {
       const r = row as Record<string, unknown>
@@ -74,6 +85,40 @@ export async function getAllProducts(): Promise<Product[]> {
     return withSort.map((x) => x.product)
   } catch (e) {
     console.error('Error fetching products:', e)
-    return DUMMY_PRODUCTS
+    return fillDemo ? DUMMY_PRODUCTS : []
   }
+}
+
+export async function getProductById(id: string): Promise<Product | null> {
+  try {
+    const { data, error } = await supabase.from('products').select('*').eq('id', id).maybeSingle()
+    if (error || !data) return null
+    return mapRow(data as Record<string, unknown>)
+  } catch {
+    return null
+  }
+}
+
+export async function addProduct(payload: Omit<Product, 'id'>): Promise<Product> {
+  const { data, error } = await supabase.from('products').insert([productToInsert(payload)]).select().single()
+  if (error) throw error
+  return mapRow(data as Record<string, unknown>)
+}
+
+export async function updateProduct(id: string, updates: Partial<Product>): Promise<Product | null> {
+  const row: Record<string, unknown> = {}
+  if (updates.name !== undefined) row.name = updates.name
+  if (updates.description !== undefined) row.description = updates.description
+  if (updates.features !== undefined) row.features = updates.features
+  if (updates.icon !== undefined) row.icon = updates.icon
+  if (updates.featured !== undefined) row.featured = updates.featured
+
+  const { data, error } = await supabase.from('products').update(row).eq('id', id).select().single()
+  if (error) return null
+  return mapRow(data as Record<string, unknown>)
+}
+
+export async function deleteProduct(id: string): Promise<boolean> {
+  const { error } = await supabase.from('products').delete().eq('id', id)
+  return !error
 }

@@ -57,7 +57,23 @@ function mapRow(row: Record<string, unknown>): Session {
   }
 }
 
-export async function getAllSessions(): Promise<Session[]> {
+function sessionToRow(p: Omit<Session, 'id'>): Record<string, unknown> {
+  return {
+    name: p.name,
+    description: p.description,
+    starts_at: p.startsAt,
+    ends_at: p.endsAt,
+    working: p.working,
+    location: p.location,
+    format: p.format ?? 'online',
+    facilitator: p.facilitator,
+    max_participants: p.maxParticipants,
+    session_type: p.sessionType,
+  }
+}
+
+export async function getAllSessions(options?: { fillDemoWhenEmpty?: boolean }): Promise<Session[]> {
+  const fillDemo = options?.fillDemoWhenEmpty !== false
   try {
     const { data, error } = await supabase
       .from('sessions')
@@ -66,14 +82,53 @@ export async function getAllSessions(): Promise<Session[]> {
 
     if (error) {
       console.error('Error fetching sessions:', error)
-      return getDummySessions()
+      return fillDemo ? getDummySessions() : []
     }
 
-    if (!data?.length) return getDummySessions()
+    if (!data?.length) return fillDemo ? getDummySessions() : []
 
     return data.map((row) => mapRow(row as Record<string, unknown>))
   } catch (e) {
     console.error('Error fetching sessions:', e)
-    return getDummySessions()
+    return fillDemo ? getDummySessions() : []
   }
+}
+
+export async function getSessionById(id: string): Promise<Session | null> {
+  try {
+    const { data, error } = await supabase.from('sessions').select('*').eq('id', id).maybeSingle()
+    if (error || !data) return null
+    return mapRow(data as Record<string, unknown>)
+  } catch {
+    return null
+  }
+}
+
+export async function addSession(payload: Omit<Session, 'id'>): Promise<Session> {
+  const { data, error } = await supabase.from('sessions').insert([sessionToRow(payload)]).select().single()
+  if (error) throw error
+  return mapRow(data as Record<string, unknown>)
+}
+
+export async function updateSession(id: string, updates: Partial<Session>): Promise<Session | null> {
+  const row: Record<string, unknown> = {}
+  if (updates.name !== undefined) row.name = updates.name
+  if (updates.description !== undefined) row.description = updates.description
+  if (updates.startsAt !== undefined) row.starts_at = updates.startsAt
+  if (updates.endsAt !== undefined) row.ends_at = updates.endsAt
+  if (updates.working !== undefined) row.working = updates.working
+  if (updates.location !== undefined) row.location = updates.location
+  if (updates.format !== undefined) row.format = updates.format
+  if (updates.facilitator !== undefined) row.facilitator = updates.facilitator
+  if (updates.maxParticipants !== undefined) row.max_participants = updates.maxParticipants
+  if (updates.sessionType !== undefined) row.session_type = updates.sessionType
+
+  const { data, error } = await supabase.from('sessions').update(row).eq('id', id).select().single()
+  if (error) return null
+  return mapRow(data as Record<string, unknown>)
+}
+
+export async function deleteSession(id: string): Promise<boolean> {
+  const { error } = await supabase.from('sessions').delete().eq('id', id)
+  return !error
 }

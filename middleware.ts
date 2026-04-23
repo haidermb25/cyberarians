@@ -1,29 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { verifyAdminSessionJwt } from '@/lib/admin-jwt'
 
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // Only protect /admin routes (except login)
-  if (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) {
-    const sessionCookie = request.cookies.get('admin_session')
-    
-    if (!sessionCookie) {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
-    }
+  const needsAdminAuth =
+    (pathname.startsWith('/admin') && !pathname.startsWith('/admin/login')) ||
+    (pathname.startsWith('/api/admin') && !pathname.startsWith('/api/admin/login'))
 
-    // Validate session expiry
-    try {
-      const decoded = JSON.parse(
-        Buffer.from(sessionCookie.value, 'base64').toString()
-      )
-      const sessionAge = Date.now() - decoded.timestamp
-      const SESSION_DURATION = 24 * 60 * 60 * 1000 // 24 hours
+  if (needsAdminAuth) {
+    const token = request.cookies.get('admin_session')?.value
 
-      if (sessionAge > SESSION_DURATION) {
-        return NextResponse.redirect(new URL('/admin/login', request.url))
+    if (!token || !(await verifyAdminSessionJwt(token))) {
+      if (pathname.startsWith('/api/admin')) {
+        return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
       }
-    } catch {
-      return NextResponse.redirect(new URL('/admin/login', request.url))
+      const res = NextResponse.redirect(new URL('/admin/login', request.url))
+      if (token) res.cookies.delete('admin_session')
+      return res
     }
   }
 
@@ -31,5 +25,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin', '/admin/:path*', '/api/admin', '/api/admin/:path*'],
 }
