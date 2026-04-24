@@ -58,7 +58,7 @@ export default function AdminDashboard() {
     <div className="p-8 space-y-8">
       <div>
         <h1 className="text-4xl font-bold mb-2">Dashboard</h1>
-        <p className="text-muted-foreground">Welcome to the Cybrarian admin panel</p>
+        <p className="text-muted-foreground">Welcome to the Cyberarians admin panel</p>
       </div>
 
       {loading ? (

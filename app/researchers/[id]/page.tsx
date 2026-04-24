@@ -58,12 +58,12 @@ interface Researcher {
 const DR_ANWAR_SHAH: Researcher = {
   id: 'dr-anwar-shah',
   name: 'Dr. Anwar Shah',
-  title: 'Founder, Cybrarian',
-  affiliation: 'Cybrarian',
+  title: 'Founder, Cyberarians',
+  affiliation: 'Cyberarians',
   email: '',
   expertise: ['Research', 'Leadership', 'Community Building'],
   rating: 5,
-  bio: 'Founder of Cybrarian. Connecting research and building communities.',
+  bio: 'Founder of Cyberarians. Connecting research and building communities.',
   image: '/researchers/dr-anwar-shah.png',
 }
 

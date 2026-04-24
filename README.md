@@ -1,4 +1,4 @@
-# Cybrarian - Research Community Platform
+# Cyberarians — Research & development platform
 
 A modern platform for managing Research Analyst (RA) profiles, building research communities, and facilitating collaboration between researchers worldwide.
 

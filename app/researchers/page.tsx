@@ -7,11 +7,9 @@ import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import { RatingStars } from '@/components/rating-stars'
 import { Skeleton } from '@/components/ui/skeleton'
-import { Search } from 'lucide-react'
-
+import { Building2, ChevronRight, Search } from 'lucide-react'
 export interface Researcher {
   id: string
   name: string
@@ -26,11 +24,11 @@ export interface Researcher {
 const DR_ANWAR_SHAH: Researcher = {
   id: 'dr-anwar-shah',
   name: 'Dr. Anwar Shah',
-  title: 'Founder, Cybrarian',
-  affiliation: 'Cybrarian',
+  title: 'Founder, Cyberarians',
+  affiliation: 'Cyberarians',
   expertise: ['Research', 'Leadership', 'Community Building'],
   rating: 5,
-  bio: 'Founder of Cybrarian. Connecting research and building communities.',
+  bio: 'Founder of Cyberarians. Connecting research and building communities.',
   image: '/researchers/dr-anwar-shah.png',
 }
 
@@ -74,52 +72,54 @@ export default function ResearchersPage() {
   const otherRAs = filteredResearchers.filter(r => !isDoctor(r))
 
   const renderCard = (researcher: Researcher) => (
-    <Link key={researcher.id} href={`/researchers/${researcher.id}`}>
-      <Card className="h-full group hover:shadow-2xl transition-all duration-300 cursor-pointer overflow-hidden border-2 hover:border-primary/50 bg-gradient-to-br from-card via-card to-primary/5">
-        <div className="relative h-48 w-full overflow-hidden">
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent z-10" />
+    <Link
+      key={researcher.id}
+      href={`/researchers/${researcher.id}`}
+      className="block h-full rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+    >
+      <Card className="h-full group relative flex flex-row gap-4 cursor-pointer overflow-hidden rounded-xl border border-border/70 bg-card p-4 sm:p-5 shadow-sm ring-1 ring-black/[0.03] dark:ring-white/[0.06] hover:border-primary/35 hover:ring-primary/15 hover:shadow-md hover:shadow-primary/[0.08]">
+        <div className="relative z-0 h-20 w-20 sm:h-[5.25rem] sm:w-[5.25rem] shrink-0 overflow-hidden rounded-md bg-muted shadow-sm ring-1 ring-border/55 group-hover:shadow-md group-hover:ring-primary/20">
           <Image
             src={researcher.image}
             alt={researcher.name}
             fill
-            className="object-cover group-hover:scale-110 transition-transform duration-500"
+            className="object-cover object-top"
+            sizes="(max-width: 640px) 80px, 84px"
             unoptimized
           />
-          <div className="absolute top-3 right-3 z-20 bg-white/95 backdrop-blur-sm px-3 py-1.5 rounded-full shadow-lg">
-            <div className="flex items-center gap-1.5">
-              <span className="text-primary font-bold text-sm">{researcher.rating.toFixed(1)}</span>
-              <span className="text-yellow-500">★</span>
-            </div>
-          </div>
         </div>
-        <div className="p-6 space-y-4">
-          <div>
-            <h3 className="font-bold text-xl line-clamp-1 group-hover:text-primary transition-colors">
+        <div className="relative z-0 min-w-0 flex-1 flex flex-col gap-2">
+          <div className="min-w-0">
+            <h3 className="font-semibold text-base sm:text-lg tracking-tight text-foreground leading-snug line-clamp-2 group-hover:text-primary">
               {researcher.name}
             </h3>
-            <p className="text-sm text-primary font-semibold mt-1">{researcher.title}</p>
-            <p className="text-xs text-muted-foreground mt-0.5 flex items-center gap-1">
-              <span className="inline-block w-1 h-1 rounded-full bg-primary/60" />
-              {researcher.affiliation}
+            <p className="text-sm text-muted-foreground mt-0.5 line-clamp-1">{researcher.title}</p>
+            <p className="text-xs text-muted-foreground/90 mt-1.5 flex items-center gap-1.5 line-clamp-1">
+              <Building2 className="h-3.5 w-3.5 shrink-0 text-muted-foreground/80" aria-hidden />
+              <span className="truncate">{researcher.affiliation}</span>
             </p>
           </div>
-          <div className="flex flex-wrap gap-2">
-            {researcher.expertise.slice(0, 2).map(exp => (
-              <Badge
+          <div className="flex flex-wrap gap-1.5">
+            {researcher.expertise.slice(0, 3).map(exp => (
+              <span
                 key={exp}
-                className="bg-gradient-to-r from-primary/90 to-secondary/90 text-white border-0 hover:from-primary hover:to-secondary transition-all text-xs px-3 py-1"
+                className="inline-flex items-center rounded-md bg-muted/80 px-2 py-0.5 text-[11px] font-medium text-foreground/80 border border-border/80 group-hover:border-primary/20 group-hover:bg-primary/[0.06] group-hover:text-primary"
               >
                 {exp}
-              </Badge>
+              </span>
             ))}
-            {researcher.expertise.length > 2 && (
-              <Badge variant="outline" className="text-xs border-primary/30 text-primary px-3 py-1">
-                +{researcher.expertise.length - 2} more
-              </Badge>
+            {researcher.expertise.length > 3 && (
+              <span className="text-[11px] text-muted-foreground self-center px-0.5 tabular-nums">
+                +{researcher.expertise.length - 3} more
+              </span>
             )}
           </div>
-          <div className="pt-3 border-t border-border/50">
-            <RatingStars rating={researcher.rating} />
+          <div className="mt-auto pt-3 flex items-center justify-between gap-3 border-t border-border/50">
+            <RatingStars rating={researcher.rating} size={14} />
+            <span className="inline-flex items-center gap-0.5 text-sm font-semibold text-primary shrink-0 group-hover:text-primary/90">
+              View
+              <ChevronRight className="h-4 w-4" aria-hidden />
+            </span>
           </div>
         </div>
       </Card>
@@ -152,10 +152,18 @@ export default function ResearchersPage() {
           {loading ? (
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
               {[...Array(6)].map((_, i) => (
-                <Card key={i} className="p-6 space-y-4">
-                  <Skeleton className="h-40 w-full" />
-                  <Skeleton className="h-6 w-3/4" />
-                  <Skeleton className="h-4 w-1/2" />
+                <Card key={i} className="p-4 sm:p-5 flex gap-4">
+                  <Skeleton className="h-20 w-20 sm:h-[5.25rem] sm:w-[5.25rem] shrink-0 rounded-lg" />
+                  <div className="flex-1 space-y-2 py-0.5">
+                    <Skeleton className="h-5 w-4/5" />
+                    <Skeleton className="h-3.5 w-3/5" />
+                    <Skeleton className="h-3 w-2/3" />
+                    <div className="flex gap-1.5 pt-1">
+                      <Skeleton className="h-5 w-14 rounded-md" />
+                      <Skeleton className="h-5 w-20 rounded-md" />
+                    </div>
+                    <Skeleton className="h-6 w-full mt-2" />
+                  </div>
                 </Card>
               ))}
             </div>

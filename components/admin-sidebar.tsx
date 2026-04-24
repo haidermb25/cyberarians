@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
-  BookOpen,
+  LayoutDashboard,
   Users,
   Network,
   UserCircle,
@@ -15,11 +15,12 @@ import {
   Briefcase,
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { BrandLogo } from '@/components/brand-logo'
 import { Button } from '@/components/ui/button'
 import { useRouter } from 'next/navigation'
 
 const navItems = [
-  { href: '/admin/dashboard', label: 'Dashboard', icon: BookOpen },
+  { href: '/admin/dashboard', label: 'Dashboard', icon: LayoutDashboard },
   { href: '/admin/researchers', label: 'Researchers', icon: Users },
   { href: '/admin/people', label: 'People', icon: UserCircle },
   { href: '/admin/communities', label: 'Communities', icon: Network },
@@ -42,11 +43,11 @@ export function AdminSidebar() {
   return (
     <aside className="w-64 bg-sidebar border-r border-sidebar-border h-screen flex flex-col overflow-y-auto">
       <div className="p-6 border-b border-sidebar-border">
-        <Link href="/admin/dashboard" className="flex items-center gap-2">
-          <div className="w-8 h-8 bg-sidebar-primary rounded-lg flex items-center justify-center">
-            <BookOpen size={20} className="text-sidebar-primary-foreground" />
-          </div>
-          <span className="font-semibold text-sidebar-foreground">Cybrarian Admin</span>
+        <Link href="/admin/dashboard" className="flex flex-col gap-2">
+          <BrandLogo compact className="self-start" />
+          <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
+            Admin
+          </span>
         </Link>
       </div>
 

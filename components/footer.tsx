@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import { Mail, Phone, MapPin, Linkedin, Twitter, Github, Globe } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export function Footer() {
   return (
@@ -8,11 +9,9 @@ export function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* About Section */}
           <div className="space-y-4">
-            <h3 className="text-lg font-bold bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              Cybrarian
-            </h3>
+            <BrandLogo className="origin-left" />
             <p className="text-sm text-muted-foreground leading-relaxed">
-              A modern platform for managing research analyst profiles, building research communities, and facilitating collaboration between researchers worldwide.
+              Cyberarians is a modern platform for research and development in AI and cybersecurity—profiles, communities, and collaboration for teams worldwide.
             </p>
             <div className="flex gap-3">
               <a 
@@ -144,7 +143,7 @@ export function Footer() {
         <div className="pt-8 border-t border-border">
           <div className="flex flex-col md:flex-row justify-between items-center gap-4">
             <p className="text-sm text-muted-foreground text-center md:text-left">
-              © {new Date().getFullYear()} Cybrarian. All rights reserved. Connecting research analysts and communities worldwide.
+              © {new Date().getFullYear()} Cyberarians. All rights reserved. Connecting research, communities, and partners worldwide.
             </p>
             <div className="flex items-center gap-4">
               <Link href="/privacy" className="text-xs text-muted-foreground hover:text-primary transition-colors">

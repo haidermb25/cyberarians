@@ -360,7 +360,7 @@ export default function ServicesPage() {
             <Card className="p-12 bg-gradient-to-br from-primary to-secondary text-white text-center">
               <h2 className="text-3xl font-bold mb-4">Ready to Get Started?</h2>
               <p className="text-lg mb-8 text-white/90">
-                Join thousands of researchers already using Cybrarian to advance their work
+                Join thousands of researchers already using Cyberarians to advance their work
               </p>
               <Link href="/contact">
                 <Button size="lg" variant="secondary" className="text-lg px-8">

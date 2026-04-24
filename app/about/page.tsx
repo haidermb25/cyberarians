@@ -1,5 +1,6 @@
 import { Header } from '@/components/header'
 import { Footer } from '@/components/footer'
+import { BrandLogo } from '@/components/brand-logo'
 import { Card } from '@/components/ui/card'
 import { Users, Target, Lightbulb, Award } from 'lucide-react'
 
@@ -12,8 +13,11 @@ export default function AboutPage() {
         <section className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16">
           {/* Hero Section */}
           <div className="text-center mb-16">
+            <div className="mb-6 flex justify-center">
+              <BrandLogo />
+            </div>
             <h1 className="text-4xl md:text-5xl font-bold mb-4 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
-              About Cybrarian
+              About Cyberarians
             </h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
               Empowering collaborative research and knowledge sharing across the globe
@@ -24,7 +28,7 @@ export default function AboutPage() {
           <Card className="p-8 mb-12 bg-gradient-to-br from-primary/5 to-secondary/5 border-primary/20">
             <h2 className="text-2xl font-bold mb-4 text-center">Our Mission</h2>
             <p className="text-muted-foreground leading-relaxed text-center text-lg">
-              Cybrarian is dedicated to connecting research analysts and building vibrant research communities worldwide. 
+              Cyberarians is dedicated to connecting research analysts and building vibrant research communities worldwide. 
               We provide a modern platform where researchers can showcase their expertise, share their work, and collaborate 
               with peers across different domains of knowledge.
             </p>
@@ -135,14 +139,14 @@ export default function AboutPage() {
             <h2 className="text-3xl font-bold mb-6 text-center">Our Story</h2>
             <div className="prose prose-lg max-w-none text-muted-foreground">
               <p className="leading-relaxed mb-4">
-                Cybrarian was born from the vision of making research collaboration more accessible and efficient. 
+                Cyberarians was born from the vision of making research collaboration more accessible and efficient. 
                 In an increasingly connected world, we recognized the need for a dedicated platform where researchers 
                 could easily discover each other, share their work, and build meaningful professional relationships.
               </p>
               <p className="leading-relaxed mb-4">
                 Our platform combines modern technology with an intuitive user experience to create a space where 
                 research excellence is celebrated and collaboration flourishes. Whether you're an established researcher 
-                or just beginning your academic journey, Cybrarian provides the tools and community you need to succeed.
+                or just beginning your academic journey, Cyberarians provides the tools and community you need to succeed.
               </p>
               <p className="leading-relaxed">
                 Today, we're proud to serve researchers across multiple disciplines, facilitating connections that lead 

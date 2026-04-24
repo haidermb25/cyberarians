@@ -27,7 +27,7 @@ export default function PrivacyPage() {
             <Card className="p-8 mb-6">
               <h2 className="text-2xl font-bold mb-4">Introduction</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Welcome to Cybrarian. We respect your privacy and are committed to protecting your personal data. 
+                Welcome to Cyberarians. We respect your privacy and are committed to protecting your personal data. 
                 This privacy policy explains how we collect, use, and safeguard your information when you use our platform.
               </p>
             </Card>

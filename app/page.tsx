@@ -6,14 +6,14 @@ import { HeroBackground } from '@/components/hero-background'
 import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { 
-  Users, 
-  Network, 
-  Award, 
-  TrendingUp, 
-  Globe, 
-  BookOpen, 
-  Target, 
+import {
+  Users,
+  Network,
+  Award,
+  TrendingUp,
+  Globe,
+  BookOpen,
+  Target,
   CheckCircle2,
   ArrowRight,
   Sparkles,
@@ -21,7 +21,7 @@ import {
   Zap,
   FileText,
   GraduationCap,
-  Mail
+  Mail,
 } from 'lucide-react'
 
 export default function Home() {
@@ -51,7 +51,7 @@ export default function Home() {
               </h1>
               
               <p className="text-xl text-white/90 max-w-3xl mx-auto text-pretty leading-relaxed drop-shadow-sm">
-                Cybrarian is the premier platform where leading research analysts connect, share insights, 
+                Cyberarians is the premier platform where leading research analysts connect, share insights, 
                 and collaborate on groundbreaking research projects that shape our future.
               </p>
               
@@ -95,7 +95,7 @@ export default function Home() {
               <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">Founder</Badge>
               <h2 className="text-4xl font-bold mb-3">Meet Our Founder</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-                The vision behind Cybrarian
+                The vision behind Cyberarians
               </p>
             </div>
 
@@ -106,7 +106,7 @@ export default function Home() {
                   <div className="relative w-full max-w-sm aspect-[3/4] rounded-2xl overflow-hidden shadow-2xl ring-2 ring-primary/10">
                     <Image
                       src="/founder/dr-anwar-shah.png"
-                      alt="Dr. Anwar Shah — Founder of Cybrarian"
+                      alt="Dr. Anwar Shah — Founder of Cyberarians"
                       fill
                       className="object-cover object-top"
                       sizes="(max-width: 768px) 100vw, 360px"
@@ -118,9 +118,9 @@ export default function Home() {
                 {/* Info + CV */}
                 <div className="p-6 sm:p-8 md:p-10 flex flex-col justify-center">
                   <h3 className="text-2xl sm:text-3xl font-bold mb-1">Dr. Anwar Shah</h3>
-                  <p className="text-primary font-semibold mb-6">Founder, Cybrarian</p>
+                  <p className="text-primary font-semibold mb-6">Founder, Cyberarians</p>
                   <p className="text-muted-foreground leading-relaxed mb-6">
-                    Dr. Anwar Shah founded Cybrarian to connect researchers and build communities around rigorous, 
+                    Dr. Anwar Shah founded Cyberarians to connect researchers and build communities around rigorous, 
                     impactful work. His vision is a platform where leading analysts share insights and collaborate 
                     on research that shapes the future.
                   </p>
@@ -163,7 +163,7 @@ export default function Home() {
         <section className="py-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
-              <h2 className="text-4xl font-bold mb-4">Why Choose Cybrarian?</h2>
+              <h2 className="text-4xl font-bold mb-4">Why Choose Cyberarians?</h2>
               <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
                 Everything you need to build and grow your research network
               </p>
@@ -211,48 +211,53 @@ export default function Home() {
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-16">
               <h2 className="text-4xl font-bold mb-4">How It Works</h2>
-              <p className="text-xl text-muted-foreground">
-                Get started in three simple steps
+              <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
+                Explore the platform, engage with the community, learn and build, then collaborate or hire us for
+                tailored work.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-3 gap-8">
-              <div className="relative">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                    1
+            <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8">
+              {[
+                {
+                  step: 1,
+                  title: 'Explore',
+                  description:
+                    'Browse our platform to discover research papers, projects, and ongoing R&D work.',
+                },
+                {
+                  step: 2,
+                  title: 'Engage',
+                  description:
+                    'Join our communities to participate in discussions, attend sessions, and collaborate with others.',
+                },
+                {
+                  step: 3,
+                  title: 'Learn & Build',
+                  description:
+                    'Access shared knowledge, contribute to projects, and build your own ideas with guidance.',
+                },
+                {
+                  step: 4,
+                  title: 'Collaborate',
+                  description:
+                    'Work with our team or community members on real-world AI and cybersecurity challenges.',
+                },
+                {
+                  step: 5,
+                  title: 'Hire Us',
+                  description:
+                    'Businesses and individuals can reach out for custom solutions, consulting, or R&D partnerships.',
+                },
+              ].map(({ step, title, description }) => (
+                <div key={step} className="text-center">
+                  <div className="mx-auto mb-6 flex h-16 w-16 items-center justify-center rounded-full bg-gradient-to-br from-primary to-secondary text-2xl font-bold text-white">
+                    {step}
                   </div>
-                  <h3 className="text-xl font-bold mb-3">Discover Profiles</h3>
-                  <p className="text-muted-foreground">
-                    Browse comprehensive researcher profiles with publications, projects, and expertise areas
-                  </p>
+                  <h3 className="text-xl font-bold mb-3">{title}</h3>
+                  <p className="text-muted-foreground text-sm leading-relaxed">{description}</p>
                 </div>
-                {/* Connector line for desktop */}
-                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary/50 to-transparent" />
-              </div>
-
-              <div className="relative">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                    2
-                  </div>
-                  <h3 className="text-xl font-bold mb-3">Join Communities</h3>
-                  <p className="text-muted-foreground">
-                    Connect with research communities in your field and participate in collaborative projects
-                  </p>
-                </div>
-                <div className="hidden md:block absolute top-8 left-[60%] w-[80%] h-0.5 bg-gradient-to-r from-primary/50 to-transparent" />
-              </div>
-
-              <div className="text-center">
-                <div className="w-16 h-16 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center text-white text-2xl font-bold mx-auto mb-6">
-                  3
-                </div>
-                <h3 className="text-xl font-bold mb-3">Start Collaborating</h3>
-                <p className="text-muted-foreground">
-                  Reach out to researchers, share insights, and work together on breakthrough discoveries
-                </p>
-              </div>
+              ))}
             </div>
           </div>
         </section>
@@ -266,7 +271,7 @@ export default function Home() {
                   Empowering Research Excellence Worldwide
                 </h2>
                 <p className="text-lg text-muted-foreground leading-relaxed">
-                  Cybrarian provides a comprehensive platform for researchers to showcase their work, 
+                  Cyberarians provides a comprehensive platform for researchers to showcase their work, 
                   build their reputation, and collaborate with experts globally.
                 </p>
                 
@@ -410,7 +415,7 @@ export default function Home() {
         <section className="py-20 bg-gradient-to-r from-primary/5 to-secondary/5">
           <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <blockquote className="text-2xl md:text-3xl font-semibold mb-6 leading-relaxed">
-              "Cybrarian has transformed how I connect with fellow researchers. 
+              "Cyberarians has transformed how I connect with fellow researchers. 
               The platform makes collaboration effortless and meaningful."
             </blockquote>
             <div className="flex items-center justify-center gap-3">

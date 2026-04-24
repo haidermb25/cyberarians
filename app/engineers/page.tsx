@@ -31,7 +31,7 @@ export default async function EngineersPage() {
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
             <h1 className="text-4xl md:text-5xl font-bold mb-6">Engineers</h1>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              Meet the engineers and technical experts behind Cybrarian.
+              Meet the engineers and technical experts behind Cyberarians.
             </p>
           </div>
         </section>

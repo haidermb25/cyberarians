@@ -7,7 +7,8 @@ import { Button } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { BookOpen, Loader2, Lock, Shield } from 'lucide-react'
+import { Loader2, Lock, Shield } from 'lucide-react'
+import { BrandLogo } from '@/components/brand-logo'
 
 export default function AdminLoginPage() {
   const router = useRouter()
@@ -64,12 +65,8 @@ export default function AdminLoginPage() {
 
       <div className="relative z-10 w-full max-w-md">
         <div className="flex flex-col items-center mb-8 text-center">
-          <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-white/15 ring-2 ring-white/25 shadow-lg backdrop-blur-sm">
-            <BookOpen className="h-8 w-8 text-white" strokeWidth={2.25} />
-          </div>
-          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-            Cybrarian Admin
-          </h1>
+          <BrandLogo variant="badge" className="mb-4 shadow-lg shadow-black/30" />
+          <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Admin</h1>
           <p className="mt-2 text-sm text-white/75">
             Sign in to manage researchers, communities, and roles
           </p>

@@ -15,20 +15,22 @@ type HeroSlide = {
 
 const SLIDES: HeroSlide[] = [
   {
-    src: '/hero/hero-lab.png',
-    alt: 'Researchers and students collaborating with laptops in a training lab',
+    src: '/hero/hero-lab.jpg',
+    alt: 'Team collaborating around laptops in a bright modern office',
     label: 'Hands-on sessions & training',
+    imageClass: 'object-cover object-center sm:object-[center_40%]',
   },
   {
-    src: '/hero/hero-community.png',
-    alt: 'Cybrarian community at an outdoor tech event with partners banner',
+    src: '/hero/hero-community.jpg',
+    alt: 'Team workshop with people gathered around a table reviewing work',
     label: 'Community & partner events',
+    imageClass: 'object-cover object-center',
   },
   {
-    src: '/hero/hero-presentation.png',
-    alt: 'Speaker at a podium delivering a presentation with microphone and laptop',
+    src: '/hero/hero-presentation.jpg',
+    alt: 'Speaker presenting with a microphone at a professional event',
     label: 'Talks, keynotes & leadership',
-    imageClass: 'object-cover object-[center_25%] sm:object-[center_20%]',
+    imageClass: 'object-cover object-[center_30%] sm:object-[center_25%]',
   },
 ]
 
@@ -105,29 +107,19 @@ export function HeroBackground() {
                 transitionDuration: `${CROSSFADE_MS}ms`,
               }}
             >
-              <div
-                key={`${slide.src}-${activeIndex}-${isActive}`}
-                className={cn(
-                  'absolute inset-0',
-                  isActive && !reduceMotion && 'hero-ken-burns-active',
-                )}
-              >
+              <div key={`${slide.src}-${activeIndex}-${isActive}`} className="absolute inset-0">
                 <Image
                   src={slide.src}
                   alt=""
                   fill
-                  className={cn(
-                    'object-cover select-none scale-105',
-                    slide.imageClass ?? 'object-center',
-                  )}
+                  className={cn('object-cover select-none', slide.imageClass)}
                   sizes="100vw"
-                  quality={90}
                   priority={i === 0}
                   draggable={false}
                 />
               </div>
               <div
-                className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_85%_70%_at_50%_45%,transparent_0%,rgba(0,0,0,0.45)_100%)]"
+                className="absolute inset-0 pointer-events-none bg-[radial-gradient(ellipse_90%_75%_at_50%_42%,transparent_0%,rgba(0,0,0,0.38)_100%)]"
                 aria-hidden
               />
             </div>
@@ -136,11 +128,11 @@ export function HeroBackground() {
       </div>
 
       <div
-        className="absolute inset-0 bg-gradient-to-b from-black/55 via-black/35 to-black/60 pointer-events-none z-[1]"
+        className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/30 to-black/55 pointer-events-none z-[1]"
         aria-hidden
       />
       <div
-        className="absolute inset-0 bg-gradient-to-tr from-primary/20 via-transparent to-secondary/15 pointer-events-none z-[1] mix-blend-soft-light opacity-90"
+        className="absolute inset-0 bg-gradient-to-tr from-primary/15 via-transparent to-secondary/12 pointer-events-none z-[1] mix-blend-soft-light opacity-85"
         aria-hidden
       />
 

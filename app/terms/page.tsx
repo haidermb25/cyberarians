@@ -27,7 +27,7 @@ export default function TermsPage() {
             <Card className="p-8 mb-6">
               <h2 className="text-2xl font-bold mb-4">Agreement to Terms</h2>
               <p className="text-muted-foreground leading-relaxed">
-                By accessing or using Cybrarian, you agree to be bound by these Terms of Service and all applicable 
+                By accessing or using Cyberarians, you agree to be bound by these Terms of Service and all applicable 
                 laws and regulations. If you do not agree with any of these terms, you are prohibited from using or 
                 accessing this platform.
               </p>
@@ -37,20 +37,20 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold mb-4">Use License</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p className="leading-relaxed">
-                  Permission is granted to temporarily access the materials (information or software) on Cybrarian's 
+                  Permission is granted to temporarily access the materials (information or software) on Cyberarians&apos; 
                   platform for personal, non-commercial viewing only. This is the grant of a license, not a transfer 
                   of title, and under this license you may not:
                 </p>
                 <ul className="list-disc list-inside space-y-2 ml-4">
                   <li>Modify or copy the materials</li>
                   <li>Use the materials for any commercial purpose or public display</li>
-                  <li>Attempt to reverse engineer any software contained on Cybrarian's platform</li>
+                  <li>Attempt to reverse engineer any software contained on Cyberarians&apos; platform</li>
                   <li>Remove any copyright or proprietary notations from the materials</li>
                   <li>Transfer the materials to another person or "mirror" the materials on any other server</li>
                 </ul>
                 <p className="leading-relaxed mt-4">
                   This license shall automatically terminate if you violate any of these restrictions and may be 
-                  terminated by Cybrarian at any time.
+                  terminated by Cyberarians at any time.
                 </p>
               </div>
             </Card>
@@ -110,7 +110,7 @@ export default function TermsPage() {
                 <div>
                   <h3 className="text-lg font-semibold text-foreground mb-2">Platform Content</h3>
                   <p className="leading-relaxed">
-                    The platform, including its design, features, and functionality, is owned by Cybrarian and is 
+                    The platform, including its design, features, and functionality, is owned by Cyberarians and is 
                     protected by international copyright, trademark, and other intellectual property laws.
                   </p>
                 </div>
@@ -119,7 +119,7 @@ export default function TermsPage() {
                   <h3 className="text-lg font-semibold text-foreground mb-2">User Content</h3>
                   <p className="leading-relaxed">
                     You retain all rights to your research work, publications, and other content you provide for 
-                    your profile. By providing content, you grant Cybrarian a non-exclusive, worldwide license to 
+                    your profile. By providing content, you grant Cyberarians a non-exclusive, worldwide license to 
                     display and distribute this content on the platform.
                   </p>
                 </div>
@@ -128,7 +128,7 @@ export default function TermsPage() {
                   <h3 className="text-lg font-semibold text-foreground mb-2">Third-Party Content</h3>
                   <p className="leading-relaxed">
                     Links to third-party websites (ORCID, Google Scholar, LinkedIn, etc.) are provided for convenience. 
-                    Cybrarian is not responsible for the content of these external sites.
+                    Cyberarians is not responsible for the content of these external sites.
                   </p>
                 </div>
               </div>
@@ -153,13 +153,13 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold mb-4">Disclaimer</h2>
               <div className="space-y-4 text-muted-foreground">
                 <p className="leading-relaxed">
-                  The materials on Cybrarian's platform are provided on an 'as is' basis. Cybrarian makes no 
+                  The materials on Cyberarians&apos; platform are provided on an 'as is' basis. Cyberarians makes no 
                   warranties, expressed or implied, and hereby disclaims and negates all other warranties including, 
                   without limitation, implied warranties or conditions of merchantability, fitness for a particular 
                   purpose, or non-infringement of intellectual property or other violation of rights.
                 </p>
                 <p className="leading-relaxed">
-                  Cybrarian does not warrant or make any representations concerning the accuracy, likely results, or 
+                  Cyberarians does not warrant or make any representations concerning the accuracy, likely results, or 
                   reliability of the use of the materials on its platform or otherwise relating to such materials or 
                   on any sites linked to this platform.
                 </p>
@@ -169,9 +169,9 @@ export default function TermsPage() {
             <Card className="p-8 mb-6">
               <h2 className="text-2xl font-bold mb-4">Limitations</h2>
               <p className="text-muted-foreground leading-relaxed">
-                In no event shall Cybrarian or its suppliers be liable for any damages (including, without limitation, 
+                In no event shall Cyberarians or its suppliers be liable for any damages (including, without limitation, 
                 damages for loss of data or profit, or due to business interruption) arising out of the use or inability 
-                to use the materials on Cybrarian's platform, even if Cybrarian or a Cybrarian authorized representative 
+                to use the materials on Cyberarians&apos; platform, even if Cyberarians or an authorized Cyberarians representative 
                 has been notified orally or in writing of the possibility of such damage.
               </p>
             </Card>
@@ -179,16 +179,16 @@ export default function TermsPage() {
             <Card className="p-8 mb-6">
               <h2 className="text-2xl font-bold mb-4">Accuracy of Materials</h2>
               <p className="text-muted-foreground leading-relaxed">
-                The materials appearing on Cybrarian's platform could include technical, typographical, or photographic 
-                errors. Cybrarian does not warrant that any of the materials on its platform are accurate, complete, or 
-                current. Cybrarian may make changes to the materials contained on its platform at any time without notice.
+                The materials appearing on Cyberarians&apos; platform could include technical, typographical, or photographic 
+                errors. Cyberarians does not warrant that any of the materials on its platform are accurate, complete, or 
+                current. Cyberarians may make changes to the materials contained on its platform at any time without notice.
               </p>
             </Card>
 
             <Card className="p-8 mb-6">
               <h2 className="text-2xl font-bold mb-4">Modifications</h2>
               <p className="text-muted-foreground leading-relaxed">
-                Cybrarian may revise these Terms of Service at any time without notice. By using this platform, you are 
+                Cyberarians may revise these Terms of Service at any time without notice. By using this platform, you are 
                 agreeing to be bound by the then current version of these Terms of Service. We will notify users of 
                 material changes to these terms through the platform or via email.
               </p>
@@ -215,7 +215,7 @@ export default function TermsPage() {
               <h2 className="text-2xl font-bold mb-4">Governing Law</h2>
               <p className="text-muted-foreground leading-relaxed">
                 These terms and conditions are governed by and construed in accordance with the laws of the jurisdiction 
-                in which Cybrarian operates, and you irrevocably submit to the exclusive jurisdiction of the courts in 
+                in which Cyberarians operates, and you irrevocably submit to the exclusive jurisdiction of the courts in 
                 that location.
               </p>
             </Card>

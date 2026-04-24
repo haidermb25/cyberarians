@@ -5,7 +5,7 @@ import type { Session } from '@/lib/types/session'
 export const DUMMY_PRODUCTS: Product[] = [
   {
     id: 'demo-product-research-hub',
-    name: 'Cybrarian Research Hub',
+    name: 'Cyberarians Research Hub',
     description: 'Central workspace to discover researchers, communities, and shared resources in one place.',
     icon: 'globe',
     featured: false,
@@ -107,7 +107,7 @@ export function getDummySessions(): Session[] {
       startsAt: startLive.toISOString(),
       endsAt: endLive.toISOString(),
       working: true,
-      location: 'Cybrarian Live Room',
+      location: 'Cyberarians Live Room',
       format: 'online',
       facilitator: 'Community team',
       maxParticipants: 40,
